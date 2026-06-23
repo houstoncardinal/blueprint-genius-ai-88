@@ -18,14 +18,16 @@ export function HelpTip({
   className?: string;
 }) {
   return (
-    <Tooltip delayDuration={150}>
-      <TooltipTrigger asChild>
-        <span className={className}>{children}</span>
-      </TooltipTrigger>
-      <TooltipContent side={side} className="max-w-xs text-[11px] leading-snug">
-        {label}
-      </TooltipContent>
-    </Tooltip>
+    <TooltipProvider delayDuration={150}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <span className={className}>{children}</span>
+        </TooltipTrigger>
+        <TooltipContent side={side} className="max-w-xs text-[11px] leading-snug">
+          {label}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
 
