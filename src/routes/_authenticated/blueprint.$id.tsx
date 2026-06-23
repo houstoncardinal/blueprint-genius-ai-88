@@ -3,20 +3,21 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, LayoutGrid, Network, Database, Layout, Server, Code2, Cloud, KanbanSquare, BookOpen, RefreshCw } from "lucide-react";
+import { ArrowLeft, Loader2, LayoutGrid, Network, Database, Layout, Server, Code2, Cloud, KanbanSquare, BookOpen, RefreshCw, Bot } from "lucide-react";
 import { getBlueprint, runBlueprintGeneration } from "@/lib/blueprints.functions";
 import type { Blueprint } from "@/lib/ai.server";
 import {
   OverviewTab, ArchitectureTab, DatabaseTab, FrontendTab, BackendTab,
   ApiTab, DeploymentTab, TasksTab, DocumentationTab,
 } from "@/components/workspace/tabs";
+import { AgentsTab } from "@/components/workspace/agents-tab";
 
 export const Route = createFileRoute("/_authenticated/blueprint/$id")({
   head: () => ({ meta: [{ title: "Blueprint — BuildBlueprint AI" }] }),
   component: BlueprintPage,
 });
 
-type TabKey = "overview" | "architecture" | "database" | "frontend" | "backend" | "api" | "deployment" | "tasks" | "docs";
+type TabKey = "overview" | "architecture" | "database" | "frontend" | "backend" | "api" | "deployment" | "tasks" | "agents" | "docs";
 const TABS: { key: TabKey; label: string; Icon: typeof LayoutGrid }[] = [
   { key: "overview",     label: "Overview",      Icon: LayoutGrid },
   { key: "architecture", label: "Architecture",  Icon: Network },
@@ -26,6 +27,7 @@ const TABS: { key: TabKey; label: string; Icon: typeof LayoutGrid }[] = [
   { key: "api",          label: "API",           Icon: Code2 },
   { key: "deployment",   label: "Deployment",    Icon: Cloud },
   { key: "tasks",        label: "Tasks",         Icon: KanbanSquare },
+  { key: "agents",       label: "AI Agents",     Icon: Bot },
   { key: "docs",         label: "Documentation", Icon: BookOpen },
 ];
 
@@ -145,6 +147,7 @@ function BlueprintPage() {
         {tab === "api"          && <ApiTab          id={id} bp={bp} />}
         {tab === "deployment"   && <DeploymentTab   id={id} bp={bp} />}
         {tab === "tasks"        && <TasksTab        id={id} bp={bp} />}
+        {tab === "agents"       && <AgentsTab       id={id} bp={bp} />}
         {tab === "docs"         && <DocumentationTab id={id} bp={bp} />}
       </div>
     </main>

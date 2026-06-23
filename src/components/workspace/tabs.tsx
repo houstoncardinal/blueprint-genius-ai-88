@@ -308,7 +308,7 @@ export function DatabaseTab({ id, bp }: TabProps) {
         {draft.tables?.map((t, ti) => (
           <div key={t.name} className="glass p-4">
             <input
-              className="bg-transparent font-mono text-sm font-semibold text-emerald-300 outline-none"
+              className="bg-transparent font-mono text-sm font-semibold text-emerald-700 outline-none"
               value={t.name}
               onChange={(e) => {
                 const next = [...draft.tables];
@@ -430,8 +430,8 @@ export function ApiTab({ id, bp }: TabProps) {
   const [draft, setDraft, dirty, reset] = useDraft(bp.api);
   if (!draft) return <Empty label="No API data" />;
   const METHOD_COLOR: Record<string, string> = {
-    GET: "text-emerald-300", POST: "text-sky-300", PATCH: "text-amber-300",
-    PUT: "text-amber-300", DELETE: "text-rose-300",
+    GET: "text-emerald-700", POST: "text-sky-700", PATCH: "text-amber-700",
+    PUT: "text-amber-700", DELETE: "text-rose-700",
   };
   return (
     <div>
@@ -586,7 +586,7 @@ export function DocumentationTab({ id, bp }: TabProps) {
           className="w-full resize-y rounded-lg border border-border/60 bg-background/60 p-4 font-mono text-sm outline-none focus:border-primary"
         />
       ) : (
-        <div className="prose prose-invert max-w-none rounded-lg border border-border/60 bg-background/60 p-6">
+        <div className="prose prose-sm max-w-none rounded-lg border border-border bg-card p-6 prose-headings:font-display prose-headings:tracking-tight prose-pre:bg-secondary prose-code:text-primary prose-a:text-primary">
           <ReactMarkdown>{draft || "_No documentation yet._"}</ReactMarkdown>
         </div>
       )}
