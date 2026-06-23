@@ -76,3 +76,33 @@ export const deleteBlueprint = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const updateBlueprintSection = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({
+      id: z.string().uuid(),
+      patch: z.record(z.string(), z.unknown()),
+    }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: row, error } = await context.supabase
+      .from("blueprints")
+      .select("analysis,title")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!row) throw new Error("Not found");
+    const current = (row.analysis ?? {}) as Record<string, unknown>;
+    const merged = { ...current, ...data.patch };
+    const nextTitle =
+      typeof data.patch.title === "string" && data.patch.title.trim().length > 0
+        ? (data.patch.title as string).trim()
+        : row.title;
+    const { error: upErr } = await context.supabase
+      .from("blueprints")
+      .update({ analysis: merged as never, title: nextTitle })
+      .eq("id", data.id);
+    if (upErr) throw new Error(upErr.message);
+    return { ok: true };
+  });
