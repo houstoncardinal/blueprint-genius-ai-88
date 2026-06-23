@@ -40,7 +40,8 @@ function Landing() {
         <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
           <a href="#how" className="hover:text-foreground">How it works</a>
           <a href="#phases" className="hover:text-foreground">Phases</a>
-          <a href="#examples" className="hover:text-foreground">Examples</a>
+          <Link to="/pricing" className="hover:text-foreground">Pricing</Link>
+          <a href="#faq" className="hover:text-foreground">FAQ</a>
         </nav>
         <div className="flex items-center gap-2">
           <Link to="/auth" className="hidden text-sm text-muted-foreground hover:text-foreground sm:inline">Sign in</Link>
@@ -240,8 +241,87 @@ function Landing() {
         </div>
       </section>
 
-      <footer className="border-t border-border/60 py-10 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} BuildBlueprint AI · Built for builders.
+      {/* Pricing teaser */}
+      <section id="pricing-teaser" className="mx-auto max-w-5xl px-6 py-20">
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="font-display text-3xl font-semibold sm:text-4xl">Simple pricing</h2>
+          <p className="mt-3 text-muted-foreground">Free to start. Upgrade when you're shipping more than one idea a month.</p>
+        </div>
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
+          {[
+            { name: "Free",  price: "$0",  blurb: "1 blueprint / month" },
+            { name: "Pro",   price: "$29", blurb: "25 blueprints + exports + audit trail", featured: true },
+            { name: "Team",  price: "$99", blurb: "Unlimited + approvals + SSO" },
+          ].map((t) => (
+            <div key={t.name} className={`glass p-5 text-center ${t.featured ? "ring-2 ring-primary/50" : ""}`}>
+              <div className="text-xs uppercase tracking-wider text-muted-foreground">{t.name}</div>
+              <div className="mt-2 text-3xl font-bold">{t.price}<span className="text-sm font-normal text-muted-foreground">/mo</span></div>
+              <div className="mt-2 text-sm text-muted-foreground">{t.blurb}</div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-8 text-center">
+          <Link to="/pricing" className="glass inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium">
+            See full pricing <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" className="mx-auto max-w-3xl px-6 py-20">
+        <h2 className="font-display text-center text-3xl font-semibold sm:text-4xl">Questions, answered</h2>
+        <div className="mt-8 space-y-3">
+          {[
+            { q: "Is this another ChatGPT wrapper?", a: "No — we run a specialist Architect prompt against GPT-4o to produce 12 phases, 100+ prompts, a schema, an architecture diagram, and a sequential build chain in one structured response." },
+            { q: "What stacks does it support?", a: "Lovable, Cursor, Bolt, Windsurf, Claude Code — any AI-native IDE. The prompts are stack-agnostic and stack-specific where it matters." },
+            { q: "Do I own my blueprints?", a: "Yes. You own everything you submit and everything generated from it. We never train models on your content." },
+            { q: "Can I cancel anytime?", a: "Yes. Cancel from your dashboard — access continues through the end of the billing period." },
+          ].map((f) => (
+            <details key={f.q} className="glass group p-4">
+              <summary className="cursor-pointer list-none font-medium">{f.q}</summary>
+              <p className="mt-2 text-sm text-muted-foreground">{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      <footer className="border-t border-border/60 py-12">
+        <div className="mx-auto grid max-w-6xl gap-8 px-6 sm:grid-cols-2 md:grid-cols-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <div className="grid h-7 w-7 place-items-center rounded-lg" style={{ background: "var(--gradient-primary)" }}>
+                <Sparkles className="h-3.5 w-3.5 text-background" />
+              </div>
+              <span className="font-display text-sm font-semibold">BuildBlueprint <span className="gradient-text">AI</span></span>
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">Turn a single sentence into a launch-ready blueprint.</p>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-wider text-foreground">Product</div>
+            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+              <li><a href="#how" className="hover:text-foreground">How it works</a></li>
+              <li><a href="#phases" className="hover:text-foreground">Phases</a></li>
+              <li><Link to="/pricing" className="hover:text-foreground">Pricing</Link></li>
+            </ul>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-wider text-foreground">Company</div>
+            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+              <li><a href="#faq" className="hover:text-foreground">FAQ</a></li>
+              <li><a href="mailto:hello@buildblueprint.ai" className="hover:text-foreground">Contact</a></li>
+            </ul>
+          </div>
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-wider text-foreground">Legal</div>
+            <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+              <li><Link to="/terms" className="hover:text-foreground">Terms of Service</Link></li>
+              <li><Link to="/privacy" className="hover:text-foreground">Privacy Policy</Link></li>
+            </ul>
+          </div>
+        </div>
+        <div className="mx-auto mt-10 max-w-6xl px-6 text-center text-xs text-muted-foreground">
+          © {new Date().getFullYear()} BuildBlueprint AI · Built for builders.
+        </div>
       </footer>
     </div>
   );

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /blueprint
+Disallow: /auth
+
+Sitemap: https://blueprint-genius-ai-88.lovable.app/sitemap.xml

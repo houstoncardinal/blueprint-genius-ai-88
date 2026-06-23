@@ -7,19 +7,58 @@ const CreateInput = z.object({
   refinedBrief: z.unknown().optional(),
 });
 
-/** Insert a pending row and return its id. Fast — no AI call. */
+const PLAN_QUOTAS: Record<string, number> = { free: 1, pro: 25, team: 9999 };
+
+function monthStart(): string {
+  const d = new Date();
+  return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, "0")}-01`;
+}
+
+/** Insert a pending row and return its id. Enforces monthly quota per plan. */
 export const createBlueprint = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => CreateInput.parse(input))
   .handler(async ({ data, context }) => {
+    // Look up plan (defaults to free)
+    const { data: sub } = await context.supabase
+      .from("subscriptions").select("plan,status").eq("user_id", context.userId).maybeSingle();
+    const plan = sub?.status === "active" || sub?.status === "trialing" ? (sub?.plan ?? "free") : "free";
+    const quota = PLAN_QUOTAS[plan] ?? 1;
+
+    // Read this month's usage
+    const period = monthStart();
+    const { data: usageRow } = await context.supabase
+      .from("usage_counters").select("blueprints_generated")
+      .eq("user_id", context.userId).eq("period_start", period).maybeSingle();
+    const used = usageRow?.blueprints_generated ?? 0;
+    if (used >= quota) {
+      throw new Error(
+        plan === "free"
+          ? "You've used your 1 free blueprint this month. Upgrade to Pro for 25/month."
+          : `You've hit your ${plan} plan limit of ${quota} blueprints this month.`,
+      );
+    }
+
     const { data: row, error } = await context.supabase
       .from("blueprints")
       .insert({ user_id: context.userId, idea: data.idea, status: "generating" })
       .select("id")
       .single();
     if (error || !row) throw new Error(error?.message ?? "Insert failed");
+
+    // Increment usage (upsert)
+    await context.supabase.from("usage_counters").upsert(
+      { user_id: context.userId, period_start: period, blueprints_generated: used + 1 },
+      { onConflict: "user_id,period_start" },
+    );
+    await context.supabase.from("audit_log").insert({
+      user_id: context.userId, blueprint_id: row.id, actor: "user",
+      action: "blueprint.created", details: { idea_preview: data.idea.slice(0, 120) },
+    });
+
     return { id: row.id as string };
   });
+
 
 /** Run the AI generation for an existing row. Idempotent-ish (re-runs if not ready). */
 export const runBlueprintGeneration = createServerFn({ method: "POST" })
@@ -54,13 +93,35 @@ export const runBlueprintGeneration = createServerFn({ method: "POST" })
         })
         .eq("id", data.id);
       if (upErr) throw new Error(upErr.message);
+
+      // Snapshot v1 for the audit trail (auto-approved as the initial generation)
+      await context.supabase.from("blueprint_versions").insert({
+        blueprint_id: data.id, user_id: context.userId, version: 1,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        snapshot: bp as any, change_summary: "Initial AI generation",
+        approved: true, approved_at: new Date().toISOString(), approved_by: context.userId,
+      });
+      await context.supabase.from("audit_log").insert({
+        user_id: context.userId, blueprint_id: data.id, actor: "agent",
+        action: "blueprint.generated", details: { title: bp.title },
+      });
       return { id: data.id, status: "ready" as const };
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Generation failed";
+      // Friendly mapping of common OpenAI failures
+      const raw = e instanceof Error ? e.message : "Generation failed";
+      let msg = raw;
+      if (/429|rate.?limit/i.test(raw)) msg = "OpenAI is rate-limiting us — please retry in a moment.";
+      else if (/invalid json|json/i.test(raw)) msg = "The AI returned a malformed response. Tap Retry to try again.";
+      else if (/timeout|ETIMEDOUT|ECONNRESET/i.test(raw)) msg = "Network timeout reaching OpenAI. Tap Retry.";
+      else if (/missing openai/i.test(raw)) msg = "Server is missing OPENAI_API_KEY. Contact support.";
       await context.supabase
         .from("blueprints")
         .update({ status: "failed", error: msg })
         .eq("id", data.id);
+      await context.supabase.from("audit_log").insert({
+        user_id: context.userId, blueprint_id: data.id, actor: "system",
+        action: "blueprint.generation_failed", details: { error: msg },
+      });
       throw new Error(msg);
     }
   });
