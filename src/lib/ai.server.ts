@@ -164,6 +164,17 @@ export type Blueprint = {
   promptChain: { step: number; phase: number; title: string; prompt: string; expectedOutcome: string }[];
 };
 
+function extractJson(text: string): string {
+  // Strip code fences if the model wrapped JSON in ```json ... ```
+  const fence = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fence) return fence[1].trim();
+  // Otherwise grab from first { to last }
+  const first = text.indexOf("{");
+  const last = text.lastIndexOf("}");
+  if (first !== -1 && last > first) return text.slice(first, last + 1);
+  return text;
+}
+
 export async function generateBlueprint(idea: string): Promise<Blueprint> {
   const openai = getOpenAI();
   const completion = await openai.chat.completions.create({
@@ -180,9 +191,13 @@ export async function generateBlueprint(idea: string): Promise<Blueprint> {
   if (!text) throw new Error("AI returned empty response");
   let parsed: Blueprint;
   try { parsed = JSON.parse(text) as Blueprint; }
-  catch { throw new Error("AI returned invalid JSON"); }
+  catch {
+    try { parsed = JSON.parse(extractJson(text)) as Blueprint; }
+    catch { throw new Error("AI returned invalid JSON"); }
+  }
   if (!parsed.phases || !Array.isArray(parsed.phases) || parsed.phases.length === 0) {
     throw new Error("AI response missing phases");
   }
   return parsed;
 }
+
