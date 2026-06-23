@@ -27,7 +27,7 @@ function Dashboard() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const list = useServerFn(listBlueprints);
-  const create = useServerFn(createAndGenerateBlueprint);
+  const create = useServerFn(createBlueprint);
   const del = useServerFn(deleteBlueprint);
 
   type BlueprintRow = { id: string; title: string; idea: string; status: string; created_at: string };
