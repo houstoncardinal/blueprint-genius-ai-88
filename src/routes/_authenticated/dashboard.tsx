@@ -30,11 +30,13 @@ function Dashboard() {
   const create = useServerFn(createAndGenerateBlueprint);
   const del = useServerFn(deleteBlueprint);
 
+  type BlueprintRow = { id: string; title: string; idea: string; status: string; created_at: string };
+
   const [idea, setIdea] = useState("");
 
   const { data: blueprints = [], isLoading } = useQuery({
     queryKey: ["blueprints"],
-    queryFn: () => list(),
+    queryFn: () => list() as Promise<BlueprintRow[]>,
   });
 
   const createMut = useMutation({
