@@ -82,12 +82,12 @@ function Landing() {
 
           {/* Headline with per-word animation */}
           <h1 className="font-display mt-7 text-5xl font-bold leading-[1.02] tracking-tight sm:text-7xl md:text-[5.25rem] word-stack">
-            {["From", "one", "spark", "to"].map((w, i) => (
-              <span key={i} style={{ animationDelay: `${0.15 + i * 0.06}s`, marginRight: ".25em" }}>{w}</span>
+            {["Describe it.", "Architect it."].map((w, i) => (
+              <span key={i} style={{ animationDelay: `${0.15 + i * 0.08}s`, marginRight: ".25em" }}>{w}</span>
             ))}
             <br />
             <span className="relative inline-block animate-rise" style={{ animationDelay: ".55s" }}>
-              <span className="gradient-text">a launch-ready blueprint</span>
+              <span className="gradient-text">Ship it.</span>
               <span aria-hidden className="absolute inset-x-0 -bottom-2 h-[3px] rounded-full"
                     style={{ background: "var(--gradient-primary)", opacity: .55, filter: "blur(.5px)" }} />
             </span>
