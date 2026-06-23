@@ -101,7 +101,7 @@ export const updateBlueprintSection = createServerFn({ method: "POST" })
         : row.title;
     const { error: upErr } = await context.supabase
       .from("blueprints")
-      .update({ analysis: merged, title: nextTitle })
+      .update({ analysis: merged as never, title: nextTitle })
       .eq("id", data.id);
     if (upErr) throw new Error(upErr.message);
     return { ok: true };
