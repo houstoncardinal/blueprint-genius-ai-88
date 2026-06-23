@@ -120,7 +120,7 @@ function BlueprintPage() {
   const activeTab = TABS.find((t) => t.key === tab) ?? TABS[0];
 
   return (
-    <main className="mx-auto max-w-7xl px-6 py-10">
+    <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
       <Link to="/dashboard" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
         <ArrowLeft className="h-4 w-4" /> Back to dashboard
       </Link>
@@ -128,22 +128,23 @@ function BlueprintPage() {
       <OnboardingBanner />
 
       <div className="mt-6 sticky top-2 z-20">
-        <div className="glass-strong flex flex-wrap gap-1 p-1">
+        <div className="glass-strong -mx-1 flex gap-1 overflow-x-auto p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {TABS.map(({ key, label, Icon, hint }) => (
             <HelpTip key={key} label={hint} side="bottom">
               <button
                 onClick={() => setTab(key)}
                 aria-label={`${label} — ${hint}`}
-                className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition ${
+                className={`inline-flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm transition ${
                   tab === key ? "bg-primary/20 text-foreground" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                <Icon className="h-4 w-4" /> {label}
+                <Icon className="h-4 w-4" /> <span className="whitespace-nowrap">{label}</span>
               </button>
             </HelpTip>
           ))}
         </div>
       </div>
+
 
       <div className="mt-4 flex items-start gap-2 rounded-xl border border-border bg-secondary/50 px-4 py-3 text-xs text-muted-foreground">
         <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
