@@ -159,18 +159,20 @@ export function AgentsTab({ id, bp }: { id: string; bp: Blueprint & { agents?: R
               <div className="mt-4 font-display text-base font-semibold leading-tight">{a.name}</div>
               <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">{a.blurb}</p>
               <div className="mt-5 flex items-center justify-between">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setActive(a.key);
-                    mut.mutate(a.key);
-                  }}
-                  disabled={mut.isPending || runAll.isPending}
-                  className="btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium disabled:opacity-60"
-                >
-                  {isRunning ? <Loader2 className="h-3 w-3 animate-spin" /> : has ? <RefreshCw className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
-                  {isRunning ? "Running…" : has ? "Re-run" : "Run agent"}
-                </button>
+                <HelpTip label={has ? "Re-run to refresh this deliverable with the latest blueprint context." : `Generate the ${a.name} report. Takes ~10–20 seconds and saves automatically.`}>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActive(a.key);
+                      mut.mutate(a.key);
+                    }}
+                    disabled={mut.isPending || runAll.isPending}
+                    className="btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium disabled:opacity-60"
+                  >
+                    {isRunning ? <Loader2 className="h-3 w-3 animate-spin" /> : has ? <RefreshCw className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
+                    {isRunning ? "Running…" : has ? "Re-run" : "Run agent"}
+                  </button>
+                </HelpTip>
                 <ChevronRight className="h-4 w-4 text-muted-foreground transition group-hover:translate-x-1" />
               </div>
             </button>
@@ -195,29 +197,39 @@ export function AgentsTab({ id, bp }: { id: string; bp: Blueprint & { agents?: R
               <h3 className="font-display mt-1 text-3xl font-semibold leading-tight">{activeSpec.blurb}</h3>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              {activeOutput?.markdown && <CopyBtn text={activeOutput.markdown} label="Copy markdown" />}
               {activeOutput?.markdown && (
-                <CopyBtn
-                  label="Copy as prompt"
-                  text={`I'm building "${bp.title}". Use the following ${activeSpec.name} deliverable as authoritative context for everything you do next. Follow it precisely.\n\n---\n\n${activeOutput.markdown}`}
-                />
+                <HelpTip label="Copy the raw markdown so you can paste it into Notion, a README, or anywhere that renders markdown.">
+                  <CopyBtn text={activeOutput.markdown} label="Copy markdown" />
+                </HelpTip>
               )}
               {activeOutput?.markdown && (
+                <HelpTip label="Copy this deliverable wrapped as an instruction prompt — paste directly into Lovable, Cursor, ChatGPT, or Claude and they'll use it as authoritative context.">
+                  <CopyBtn
+                    label="Copy as prompt"
+                    text={`I'm building "${bp.title}". Use the following ${activeSpec.name} deliverable as authoritative context for everything you do next. Follow it precisely.\n\n---\n\n${activeOutput.markdown}`}
+                  />
+                </HelpTip>
+              )}
+              {activeOutput?.markdown && (
+                <HelpTip label="Opens your browser's print dialog — choose 'Save as PDF' to get a clean, share-ready document.">
+                  <button
+                    onClick={() => window.print()}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs shadow-sm hover:bg-secondary"
+                  >
+                    <Printer className="h-3 w-3" /> Print / PDF
+                  </button>
+                </HelpTip>
+              )}
+              <HelpTip label={activeOutput ? "Regenerate this deliverable from scratch. Useful after you've edited your blueprint." : "Generate this deliverable now."}>
                 <button
-                  onClick={() => window.print()}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs shadow-sm hover:bg-secondary"
+                  onClick={() => mut.mutate(activeSpec.key)}
+                  disabled={mut.isPending}
+                  className="btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium disabled:opacity-60"
                 >
-                  <Printer className="h-3 w-3" /> Print / PDF
+                  {mut.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                  {activeOutput ? "Re-run" : "Run"}
                 </button>
-              )}
-              <button
-                onClick={() => mut.mutate(activeSpec.key)}
-                disabled={mut.isPending}
-                className="btn-primary inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium disabled:opacity-60"
-              >
-                {mut.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
-                {activeOutput ? "Re-run" : "Run"}
-              </button>
+              </HelpTip>
             </div>
           </div>
 
