@@ -1,5 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Check, ArrowRight, Sparkles } from "lucide-react";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 export const Route = createFileRoute("/pricing")({
   head: () => ({
@@ -16,43 +20,29 @@ export const Route = createFileRoute("/pricing")({
   component: PricingPage,
 });
 
-const TIERS = [
+type Tier = {
+  name: string; price: string; cadence: string; blurb: string; cta: string;
+  features: string[]; priceId?: string; featured?: boolean;
+};
+
+const TIERS: Tier[] = [
   {
     name: "Free", price: "$0", cadence: "forever",
     blurb: "Try the architect on one idea this month.",
-    cta: "Start free", to: "/auth",
-    features: [
-      "1 blueprint per month",
-      "Full 12-phase roadmap",
-      "100+ copy-ready prompts",
-      "Mobile-friendly workspace",
-    ],
+    cta: "Start free",
+    features: ["1 blueprint per month", "Full 12-phase roadmap", "100+ copy-ready prompts", "Mobile-friendly workspace"],
   },
   {
     name: "Pro", price: "$29", cadence: "per month",
     blurb: "For founders shipping multiple ideas.",
-    cta: "Upgrade to Pro", to: "/auth", featured: true,
-    features: [
-      "25 blueprints per month",
-      "Versioned audit trail",
-      "PDF / Markdown / JSON export",
-      "Drag-and-drop roadmap editing",
-      "Priority generation queue",
-      "Email support",
-    ],
+    cta: "Upgrade to Pro", priceId: "pro_monthly", featured: true,
+    features: ["25 blueprints per month", "Versioned audit trail", "PDF / Markdown / JSON export", "Drag-and-drop roadmap editing", "Priority generation queue", "Email support"],
   },
   {
     name: "Team", price: "$99", cadence: "per month",
     blurb: "For product squads and agencies.",
-    cta: "Talk to us", to: "/auth",
-    features: [
-      "Unlimited blueprints",
-      "Approval workflow for snapshots",
-      "Stakeholder-ready slide deck export",
-      "Team workspace + roles",
-      "SSO & SAML (on request)",
-      "Dedicated Slack support",
-    ],
+    cta: "Upgrade to Team", priceId: "team_monthly",
+    features: ["Unlimited blueprints", "Approval workflow for snapshots", "Stakeholder-ready slide deck export", "Team workspace + roles", "SSO & SAML (on request)", "Dedicated Slack support"],
   },
 ];
 
@@ -64,8 +54,28 @@ const FAQ = [
 ];
 
 function PricingPage() {
+  const navigate = useNavigate();
+  const [activePrice, setActivePrice] = useState<string | null>(null);
+  const [loading, setLoading] = useState<string | null>(null);
+
+  const handleCta = async (tier: Tier) => {
+    if (!tier.priceId) {
+      navigate({ to: "/auth" });
+      return;
+    }
+    setLoading(tier.priceId);
+    const { data } = await supabase.auth.getSession();
+    setLoading(null);
+    if (!data.session) {
+      navigate({ to: "/auth", search: { next: "/pricing" } as any });
+      return;
+    }
+    setActivePrice(tier.priceId);
+  };
+
   return (
     <div className="relative min-h-screen overflow-x-hidden">
+      <PaymentTestModeBanner />
       <div aria-hidden className="grid-bg pointer-events-none absolute inset-0 -z-10" />
 
       <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
@@ -103,17 +113,33 @@ function PricingPage() {
                   </li>
                 ))}
               </ul>
-              <Link to={t.to} className={`mt-7 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-medium ${t.featured ? "btn-primary" : "glass"}`}>
-                {t.cta} <ArrowRight className="h-4 w-4" />
-              </Link>
+              <button
+                onClick={() => handleCta(t)}
+                disabled={loading === t.priceId}
+                className={`mt-7 inline-flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-medium disabled:opacity-60 ${t.featured ? "btn-primary" : "glass"}`}
+              >
+                {loading === t.priceId ? "Loading…" : t.cta} <ArrowRight className="h-4 w-4" />
+              </button>
             </div>
           ))}
         </div>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          Payments powered by Stripe. Taxes calculated at checkout. Cancel anytime.
+          Secured by Stripe. Taxes calculated and handled at checkout. Cancel anytime.
         </p>
       </section>
+
+      {activePrice && (
+        <div className="fixed inset-0 z-50 grid place-items-center bg-background/80 backdrop-blur-sm p-4" onClick={() => setActivePrice(null)}>
+          <div className="glass-strong w-full max-w-2xl max-h-[90vh] overflow-y-auto p-4" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-3 px-2">
+              <div className="font-display font-semibold">Complete your upgrade</div>
+              <button onClick={() => setActivePrice(null)} className="text-sm text-muted-foreground hover:text-foreground">Close</button>
+            </div>
+            <StripeEmbeddedCheckout priceId={activePrice} />
+          </div>
+        </div>
+      )}
 
       <section className="mx-auto max-w-3xl px-6 py-16">
         <h2 className="font-display text-center text-3xl font-semibold">Frequently asked</h2>
