@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import { Copy, Check, Sparkles, Loader2, RefreshCw, ChevronRight, Printer, Download, PlayCircle } from "lucide-react";
 import { runAgent, runAllAgents, AGENTS, type AgentKey } from "@/lib/agents.functions";
+import { HelpTip, InfoDot } from "@/components/ui/help-tip";
 import type { Blueprint } from "@/lib/ai.server";
 
 type AgentOutput = { markdown: string; runAt: string };
@@ -73,6 +74,7 @@ export function AgentsTab({ id, bp }: { id: string; bp: Blueprint & { agents?: R
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary/60 px-3 py-1 text-xs text-muted-foreground">
             <Sparkles className="h-3 w-3 text-primary" /> Specialized AI Agents · {completed}/{AGENTS.length} complete
+            <InfoDot label="Each agent is a senior specialist (pricing, security, brand, etc.) tuned to read your blueprint and write a publication-quality deliverable in markdown. Outputs are saved to your project and can be re-run anytime." />
           </div>
           <h2 className="font-display mt-4 text-3xl font-semibold tracking-tight">
             Sixteen experts on call for your build
@@ -82,32 +84,37 @@ export function AgentsTab({ id, bp }: { id: string; bp: Blueprint & { agents?: R
           </p>
         </div>
         <div className="flex shrink-0 flex-wrap items-center gap-2">
-          <button
-            onClick={() => {
-              const missing = AGENTS.filter((a) => !outputs[a.key]).map((a) => a.key);
-              if (!missing.length) {
-                toast.info("All agents already complete — re-run individually to refresh.");
-                return;
-              }
-              runAll.mutate(missing);
-            }}
-            disabled={runAll.isPending || mut.isPending}
-            className="btn-primary inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium disabled:opacity-60"
-          >
-            {runAll.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <PlayCircle className="h-3.5 w-3.5" />}
-            {runAll.isPending ? "Running all…" : "Run remaining"}
-          </button>
-          <button
-            onClick={exportAll}
-            disabled={completed === 0}
-            className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-xs shadow-sm hover:bg-secondary disabled:opacity-50"
-          >
-            <Download className="h-3.5 w-3.5" /> Export pack (.md)
-          </button>
+          <HelpTip label="Runs every agent that hasn't been generated yet, in parallel batches of 3. Takes 60–120 seconds. Outputs are saved so you can come back anytime.">
+            <button
+              onClick={() => {
+                const missing = AGENTS.filter((a) => !outputs[a.key]).map((a) => a.key);
+                if (!missing.length) {
+                  toast.info("All agents already complete — re-run individually to refresh.");
+                  return;
+                }
+                runAll.mutate(missing);
+              }}
+              disabled={runAll.isPending || mut.isPending}
+              className="btn-primary inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium disabled:opacity-60"
+            >
+              {runAll.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <PlayCircle className="h-3.5 w-3.5" />}
+              {runAll.isPending ? "Running all…" : "Run remaining"}
+            </button>
+          </HelpTip>
+          <HelpTip label="Downloads every completed deliverable as one combined markdown file — perfect to import into Notion, share with a co-founder, or feed back into an AI assistant.">
+            <button
+              onClick={exportAll}
+              disabled={completed === 0}
+              className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-2 text-xs shadow-sm hover:bg-secondary disabled:opacity-50"
+            >
+              <Download className="h-3.5 w-3.5" /> Export pack (.md)
+            </button>
+          </HelpTip>
         </div>
       </header>
 
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="mr-1 text-[11px] uppercase tracking-wider text-muted-foreground">Filter</span>
         {(["All", ...CATEGORIES] as const).map((c) => (
           <button
             key={c}
