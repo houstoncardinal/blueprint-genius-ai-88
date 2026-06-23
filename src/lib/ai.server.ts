@@ -106,8 +106,23 @@ Be opinionated and concrete. No fluff. No "consider"/"you might".
 
 ACCURACY MANDATE: Every field tailored to THIS idea — real domain entities, real competitor names, real library versions, realistic numbers with sources/rationale. If a section does not apply (e.g. payments for internal tool), say so explicitly and explain why. Intent fields must reflect what a thoughtful founder of THIS specific product would actually say — never generic SaaS boilerplate.`;
 
+export type ActionItem = { id: string; title: string; startWeek: number; endWeek: number; dependsOn: string[]; deliverable: string };
+export type ActionTrack = { name: string; color: "indigo" | "emerald" | "amber" | "rose" | "sky" | "violet" | "slate"; items: ActionItem[] };
+
 export type Blueprint = {
   title: string; tagline: string; summary: string;
+  intent?: {
+    vision: string;
+    northStar: { metric: string; target: string; rationale: string };
+    primaryAudiences: { name: string; description: string; pain: string }[];
+    jobsToBeDone: { audience: string; job: string; trigger: string; outcome: string }[];
+    successMetrics: { name: string; target: string; timeframe: string; why: string }[];
+    nonGoals: string[];
+    constraints: { kind: string; detail: string }[];
+    assumptions: string[];
+    openQuestions: string[];
+  };
+  actionPlan?: { totalWeeks: number; tracks: ActionTrack[]; criticalPath: string[] };
   analysis: Record<string, string | string[]>;
   techStack: { name: string; rationale: string; items: { name: string; purpose: string }[] };
   architecture: {
@@ -143,7 +158,7 @@ export async function generateBlueprint(idea: string): Promise<Blueprint> {
     model: "gpt-4o",
     response_format: { type: "json_object" },
     temperature: 0.4,
-    max_tokens: 12000,
+    max_tokens: 16000,
     messages: [
       { role: "system", content: ARCHITECT_SYSTEM_PROMPT },
       { role: "user", content: `Idea: ${idea}\n\nReturn the JSON blueprint now.` },
