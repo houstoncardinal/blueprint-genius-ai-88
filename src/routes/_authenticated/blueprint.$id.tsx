@@ -27,6 +27,7 @@ const TABS: { key: TabKey; label: string; Icon: typeof LayoutGrid }[] = [
   { key: "api",          label: "API",           Icon: Code2 },
   { key: "deployment",   label: "Deployment",    Icon: Cloud },
   { key: "tasks",        label: "Tasks",         Icon: KanbanSquare },
+  { key: "agents",       label: "AI Agents",     Icon: Bot },
   { key: "docs",         label: "Documentation", Icon: BookOpen },
 ];
 
