@@ -40,7 +40,8 @@ function Landing() {
         <nav className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
           <a href="#how" className="hover:text-foreground">How it works</a>
           <a href="#phases" className="hover:text-foreground">Phases</a>
-          <a href="#examples" className="hover:text-foreground">Examples</a>
+          <Link to="/pricing" className="hover:text-foreground">Pricing</Link>
+          <a href="#faq" className="hover:text-foreground">FAQ</a>
         </nav>
         <div className="flex items-center gap-2">
           <Link to="/auth" className="hidden text-sm text-muted-foreground hover:text-foreground sm:inline">Sign in</Link>
