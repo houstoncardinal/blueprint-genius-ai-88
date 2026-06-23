@@ -14,6 +14,91 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_log: {
+        Row: {
+          action: string
+          actor: string
+          blueprint_id: string | null
+          created_at: string
+          details: Json | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          actor?: string
+          blueprint_id?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          actor?: string
+          blueprint_id?: string | null
+          created_at?: string
+          details?: Json | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_log_blueprint_id_fkey"
+            columns: ["blueprint_id"]
+            isOneToOne: false
+            referencedRelation: "blueprints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blueprint_versions: {
+        Row: {
+          approved: boolean
+          approved_at: string | null
+          approved_by: string | null
+          blueprint_id: string
+          change_summary: string | null
+          created_at: string
+          id: string
+          snapshot: Json
+          user_id: string
+          version: number
+        }
+        Insert: {
+          approved?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
+          blueprint_id: string
+          change_summary?: string | null
+          created_at?: string
+          id?: string
+          snapshot: Json
+          user_id: string
+          version: number
+        }
+        Update: {
+          approved?: boolean
+          approved_at?: string | null
+          approved_by?: string | null
+          blueprint_id?: string
+          change_summary?: string | null
+          created_at?: string
+          id?: string
+          snapshot?: Json
+          user_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blueprint_versions_blueprint_id_fkey"
+            columns: ["blueprint_id"]
+            isOneToOne: false
+            referencedRelation: "blueprints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       blueprints: {
         Row: {
           analysis: Json | null
@@ -45,6 +130,69 @@ export type Database = {
           idea?: string
           status?: string
           title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          current_period_end: string | null
+          id: string
+          plan: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          plan?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_period_end?: string | null
+          id?: string
+          plan?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      usage_counters: {
+        Row: {
+          blueprints_generated: number
+          created_at: string
+          id: string
+          period_start: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          blueprints_generated?: number
+          created_at?: string
+          id?: string
+          period_start: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          blueprints_generated?: number
+          created_at?: string
+          id?: string
+          period_start?: string
           updated_at?: string
           user_id?: string
         }
