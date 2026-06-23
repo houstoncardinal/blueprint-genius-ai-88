@@ -128,6 +128,11 @@ export type Blueprint = {
     constraints: { kind: string; detail: string }[];
     assumptions: string[];
     openQuestions: string[];
+    confidence?: {
+      overall: number;
+      rationale: string;
+      lowConfidenceFlags: { field: string; reason: string; suggestion: string }[];
+    };
   };
   actionPlan?: { totalWeeks: number; tracks: ActionTrack[]; criticalPath: string[] };
   analysis: Record<string, string | string[]>;
