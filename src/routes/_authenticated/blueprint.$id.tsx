@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { ArrowLeft, Loader2, LayoutGrid, Network, Database, Layout, Server, Code2, Cloud, KanbanSquare, BookOpen } from "lucide-react";
-import { getBlueprint } from "@/lib/blueprints.functions";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
+import { ArrowLeft, Loader2, LayoutGrid, Network, Database, Layout, Server, Code2, Cloud, KanbanSquare, BookOpen, RefreshCw } from "lucide-react";
+import { getBlueprint, runBlueprintGeneration } from "@/lib/blueprints.functions";
 import type { Blueprint } from "@/lib/ai.server";
 import {
   OverviewTab, ArchitectureTab, DatabaseTab, FrontendTab, BackendTab,
@@ -31,11 +32,34 @@ const TABS: { key: TabKey; label: string; Icon: typeof LayoutGrid }[] = [
 function BlueprintPage() {
   const { id } = Route.useParams();
   const fetchFn = useServerFn(getBlueprint);
-  const { data, isLoading, error } = useQuery({
+  const runGen = useServerFn(runBlueprintGeneration);
+
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["blueprint", id],
     queryFn: () => fetchFn({ data: { id } }),
+    refetchInterval: (q) => {
+      const s = (q.state.data as { status?: string } | undefined)?.status;
+      return s === "generating" ? 3000 : false;
+    },
   });
   const [tab, setTab] = useState<TabKey>("overview");
+
+  const genMut = useMutation({
+    mutationFn: () => runGen({ data: { id } }) as Promise<{ status: string }>,
+    onSuccess: () => refetch(),
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Generation failed"),
+  });
+
+  // Auto-trigger generation once when row is in 'generating' state and no analysis yet.
+  const triggered = useRef(false);
+  useEffect(() => {
+    if (!data) return;
+    if (triggered.current) return;
+    if (data.status === "generating" && !data.analysis) {
+      triggered.current = true;
+      genMut.mutate();
+    }
+  }, [data, genMut]);
 
   if (isLoading) {
     return (
@@ -48,27 +72,45 @@ function BlueprintPage() {
     return <div className="mx-auto max-w-2xl px-6 py-20 text-center text-muted-foreground">Blueprint not found.</div>;
   }
   if (data.status !== "ready" || !data.analysis) {
+    const failed = data.status === "failed";
     return (
       <div className="mx-auto max-w-2xl px-6 py-20">
         <div className="glass-strong p-8 text-center">
-          {data.status === "failed" ? (
+          {failed ? (
             <>
               <h2 className="font-display text-xl font-semibold">Generation failed</h2>
               <p className="mt-2 text-sm text-muted-foreground">{data.error ?? "Unknown error"}</p>
+              <button
+                onClick={() => { triggered.current = true; genMut.mutate(); }}
+                disabled={genMut.isPending}
+                className="btn-primary mt-6 inline-flex items-center gap-2 px-4 py-2 text-sm"
+              >
+                {genMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+                Retry generation
+              </button>
             </>
           ) : (
             <>
               <Loader2 className="mx-auto h-6 w-6 animate-spin text-primary" />
-              <p className="mt-3 text-muted-foreground">Generating your blueprint…</p>
+              <p className="mt-3 font-medium">Architecting your blueprint…</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Designing architecture, schema, API, and 12-phase prompt chain. This usually takes 30–90 seconds.
+              </p>
+              <div className="mt-4 h-1 w-full overflow-hidden rounded-full bg-muted">
+                <div className="h-full shimmer w-1/2" style={{ background: "var(--gradient-primary)" }} />
+              </div>
             </>
           )}
-          <Link to="/dashboard" className="btn-primary mt-6 inline-flex items-center gap-2 px-4 py-2 text-sm">
-            <ArrowLeft className="h-4 w-4" /> Back to dashboard
-          </Link>
+          <div className="mt-6">
+            <Link to="/dashboard" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="h-4 w-4" /> Back to dashboard
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
+
 
   const bp = data.analysis as unknown as Blueprint;
 

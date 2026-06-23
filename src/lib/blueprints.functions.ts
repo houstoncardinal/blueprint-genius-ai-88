@@ -4,26 +4,43 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const CreateInput = z.object({ idea: z.string().trim().min(8).max(500) });
 
-export const createAndGenerateBlueprint = createServerFn({ method: "POST" })
+/** Insert a pending row and return its id. Fast — no AI call. */
+export const createBlueprint = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => CreateInput.parse(input))
   .handler(async ({ data, context }) => {
-    const { supabase, userId } = context;
-
-    // Create pending row
-    const { data: row, error } = await supabase
+    const { data: row, error } = await context.supabase
       .from("blueprints")
-      .insert({ user_id: userId, idea: data.idea, status: "generating" })
+      .insert({ user_id: context.userId, idea: data.idea, status: "generating" })
       .select("id")
       .single();
     if (error || !row) throw new Error(error?.message ?? "Insert failed");
-    const id = row.id as string;
+    return { id: row.id as string };
+  });
 
-    // Generate via OpenAI (server-only import)
+/** Run the AI generation for an existing row. Idempotent-ish (re-runs if not ready). */
+export const runBlueprintGeneration = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: row, error } = await context.supabase
+      .from("blueprints")
+      .select("id,idea,status")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!row) throw new Error("Not found");
+    if (row.status === "ready") return { id: data.id, status: "ready" as const };
+
+    await context.supabase
+      .from("blueprints")
+      .update({ status: "generating", error: null })
+      .eq("id", data.id);
+
     try {
       const { generateBlueprint } = await import("./ai.server");
-      const bp = await generateBlueprint(data.idea);
-      const { error: upErr } = await supabase
+      const bp = await generateBlueprint(row.idea);
+      const { error: upErr } = await context.supabase
         .from("blueprints")
         .update({
           title: bp.title || "Untitled Blueprint",
@@ -32,15 +49,17 @@ export const createAndGenerateBlueprint = createServerFn({ method: "POST" })
           status: "ready",
           error: null,
         })
-        .eq("id", id);
+        .eq("id", data.id);
       if (upErr) throw new Error(upErr.message);
+      return { id: data.id, status: "ready" as const };
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Generation failed";
-      await supabase.from("blueprints").update({ status: "failed", error: msg }).eq("id", id);
+      await context.supabase
+        .from("blueprints")
+        .update({ status: "failed", error: msg })
+        .eq("id", data.id);
       throw new Error(msg);
     }
-
-    return { id };
   });
 
 export const listBlueprints = createServerFn({ method: "GET" })

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Sparkles, Loader2, ArrowRight, Trash2, FileText, Clock } from "lucide-react";
 import {
-  createAndGenerateBlueprint,
+  createBlueprint,
   listBlueprints,
   deleteBlueprint,
 } from "@/lib/blueprints.functions";
@@ -27,7 +27,7 @@ function Dashboard() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const list = useServerFn(listBlueprints);
-  const create = useServerFn(createAndGenerateBlueprint);
+  const create = useServerFn(createBlueprint);
   const del = useServerFn(deleteBlueprint);
 
   type BlueprintRow = { id: string; title: string; idea: string; status: string; created_at: string };
@@ -42,7 +42,6 @@ function Dashboard() {
   const createMut = useMutation({
     mutationFn: (text: string) => create({ data: { idea: text } }) as Promise<{ id: string }>,
     onSuccess: (res) => {
-      toast.success("Blueprint ready");
       qc.invalidateQueries({ queryKey: ["blueprints"] });
       navigate({ to: "/blueprint/$id", params: { id: res.id } });
     },

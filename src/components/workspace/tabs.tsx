@@ -12,12 +12,11 @@ type TabProps = { id: string; bp: Blueprint };
 export function OverviewTab({ bp, idea }: { bp: Blueprint; idea: string }) {
   const [activePhase, setActivePhase] = useState(bp.phases[0]?.number ?? 1);
   const phase = bp.phases.find((p) => p.number === activePhase) ?? bp.phases[0];
-  type PK = "primary" | "advanced" | "expert" | "optimization" | "bugfix" | "scaling";
+  type PK = "primary" | "advanced";
   const [pTab, setPTab] = useState<PK>("primary");
   const PROMPT_TABS: { k: PK; l: string }[] = [
-    { k: "primary", l: "Primary" }, { k: "advanced", l: "Advanced" },
-    { k: "expert", l: "Expert" }, { k: "optimization", l: "Optimization" },
-    { k: "bugfix", l: "Bug Fix" }, { k: "scaling", l: "Scaling" },
+    { k: "primary", l: "Primary" },
+    { k: "advanced", l: "Advanced" },
   ];
 
   return (
