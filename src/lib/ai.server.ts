@@ -69,7 +69,9 @@ Counts (strict):
 - folderStructure: ASCII tree using \\n.
 - documentation: markdown README skeleton (## Overview, ## Setup, ## Architecture, ## Deployment), <= 250 words.
 
-Be opinionated and concrete. No fluff. No "consider"/"you might".`;
+Be opinionated and concrete. No fluff. No "consider"/"you might".
+
+ACCURACY MANDATE: Every field must be specifically tailored to THIS idea — never generic SaaS boilerplate, never placeholder examples like "Item / Widget / Foo". Reference the actual domain entities, real competitor names, real library names with current versions, and realistic numbers (market sizes with sources/rationale, pricing in USD, hour estimates). If a section does not apply to this idea (e.g. payments for an internal tool), say so explicitly and explain why rather than inventing demo content.`;
 
 export type Blueprint = {
   title: string; tagline: string; summary: string;
