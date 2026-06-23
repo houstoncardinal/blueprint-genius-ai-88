@@ -147,9 +147,9 @@ export const runAgent = createServerFn({ method: "POST" })
 
     const openai = getOpenAI();
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      temperature: 0.55,
-      max_tokens: 1800,
+      model: "gpt-4o",
+      temperature: 0.4,
+      max_tokens: 2800,
       messages: [
         { role: "system", content: spec.systemPrompt },
         {
