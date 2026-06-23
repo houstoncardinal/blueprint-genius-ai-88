@@ -430,8 +430,8 @@ export function ApiTab({ id, bp }: TabProps) {
   const [draft, setDraft, dirty, reset] = useDraft(bp.api);
   if (!draft) return <Empty label="No API data" />;
   const METHOD_COLOR: Record<string, string> = {
-    GET: "text-emerald-300", POST: "text-sky-300", PATCH: "text-amber-300",
-    PUT: "text-amber-300", DELETE: "text-rose-300",
+    GET: "text-emerald-700", POST: "text-sky-700", PATCH: "text-amber-700",
+    PUT: "text-amber-700", DELETE: "text-rose-700",
   };
   return (
     <div>
