@@ -11,6 +11,8 @@ import {
   ApiTab, DeploymentTab, TasksTab, DocumentationTab,
 } from "@/components/workspace/tabs";
 import { AgentsTab } from "@/components/workspace/agents-tab";
+import { HelpTip } from "@/components/ui/help-tip";
+import { X, Lightbulb } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/blueprint/$id")({
   head: () => ({ meta: [{ title: "Blueprint — BuildBlueprint AI" }] }),
@@ -18,17 +20,17 @@ export const Route = createFileRoute("/_authenticated/blueprint/$id")({
 });
 
 type TabKey = "overview" | "architecture" | "database" | "frontend" | "backend" | "api" | "deployment" | "tasks" | "agents" | "docs";
-const TABS: { key: TabKey; label: string; Icon: typeof LayoutGrid }[] = [
-  { key: "overview",     label: "Overview",      Icon: LayoutGrid },
-  { key: "architecture", label: "Architecture",  Icon: Network },
-  { key: "database",     label: "Database",      Icon: Database },
-  { key: "frontend",     label: "Frontend",      Icon: Layout },
-  { key: "backend",      label: "Backend",       Icon: Server },
-  { key: "api",          label: "API",           Icon: Code2 },
-  { key: "deployment",   label: "Deployment",    Icon: Cloud },
-  { key: "tasks",        label: "Tasks",         Icon: KanbanSquare },
-  { key: "agents",       label: "AI Agents",     Icon: Bot },
-  { key: "docs",         label: "Documentation", Icon: BookOpen },
+const TABS: { key: TabKey; label: string; Icon: typeof LayoutGrid; hint: string; description: string }[] = [
+  { key: "overview",     label: "Overview",      Icon: LayoutGrid,    hint: "Your idea at a glance: stack, business model, the 12-phase build roadmap, and copy-ready prompts.",                         description: "Start here. Pick a phase, then copy the prompt straight into Lovable, Cursor, or Bolt." },
+  { key: "architecture", label: "Architecture",  Icon: Network,       hint: "Interactive system diagram showing how every service, database, and client connects.",                                       description: "Drag nodes to rearrange. Edit any component's name or description below — your changes save to the blueprint." },
+  { key: "database",     label: "Database",      Icon: Database,      hint: "ERD with every table, column, primary key, and foreign key relationship.",                                                   description: "This is your schema. Use the SQL Migration Writer agent to turn it into production-ready migrations with RLS policies." },
+  { key: "frontend",     label: "Frontend",      Icon: Layout,        hint: "Every page, the components on it, design notes, and a suggested folder structure.",                                          description: "Run the Component Chef agent for paste-ready shadcn/ui recipes for your most important screens." },
+  { key: "backend",      label: "Backend",       Icon: Server,        hint: "Server-side services, background jobs, and what each one is responsible for.",                                               description: "Edit any service responsibility — your changes save automatically." },
+  { key: "api",          label: "API",           Icon: Code2,         hint: "All endpoints with method, path, auth requirements, request body, and response shape.",                                     description: "Hand this to your AI assistant when scaffolding backend routes — it has everything needed." },
+  { key: "deployment",   label: "Deployment",    Icon: Cloud,         hint: "Hosting choice, CI/CD pipeline, environments, and infrastructure notes.",                                                   description: "A senior-engineer deployment plan you can hand to a junior dev or a CI config." },
+  { key: "tasks",        label: "Tasks",         Icon: KanbanSquare,  hint: "Kanban board with the 12 starter tasks. Drag between To-do, Doing, Done.",                                                  description: "Track build progress here. Each task is tied to a phase and has an hour estimate." },
+  { key: "agents",       label: "AI Agents",     Icon: Bot,           hint: "16 specialist agents that turn your blueprint into PDF-quality strategy documents.",                                        description: "Click any agent to see its output, or hit \"Run remaining\" to generate them all at once." },
+  { key: "docs",         label: "Documentation", Icon: BookOpen,      hint: "Auto-generated README in markdown — overview, setup, architecture, deployment.",                                            description: "Copy this into your repo's README.md to give collaborators (or your future self) instant context." },
 ];
 
 function BlueprintPage() {
