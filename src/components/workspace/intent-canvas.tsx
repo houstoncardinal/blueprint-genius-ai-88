@@ -185,20 +185,18 @@ export function RoadmapTimeline({ bp }: { bp: Blueprint }) {
                         {item.title}
                       </div>
                       {weekCols.map((w) => {
+                        if (w > item.startWeek && w <= item.endWeek) return null; // covered by span
                         if (w < item.startWeek || w > item.endWeek) {
                           return <div key={w} className="h-6 rounded bg-secondary/30" />;
                         }
-                        const isStart = w === item.startWeek;
                         return (
                           <div
                             key={w}
-                            className={`h-6 ${tone.bar} ${isCrit ? `ring-2 ${tone.ring} ring-offset-1` : ""} ${
-                              isStart ? "rounded-l-md" : ""
-                            } ${w === item.endWeek ? "rounded-r-md" : ""}`}
-                            style={{ gridColumn: isStart ? `span ${span}` : undefined, display: isStart ? "block" : "none" }}
+                            className={`h-6 ${tone.bar} ${isCrit ? `ring-2 ${tone.ring} ring-offset-1` : ""} rounded-md`}
+                            style={{ gridColumn: `span ${span}` }}
                             title={`${item.title} · W${item.startWeek}–W${item.endWeek}${item.dependsOn?.length ? ` · depends on ${item.dependsOn.join(", ")}` : ""}`}
                           >
-                            <span className="block truncate px-2 text-[10px] leading-6 text-white">
+                            <span className="block truncate px-2 text-[10px] font-medium leading-6 text-white">
                               {item.deliverable}
                             </span>
                           </div>
