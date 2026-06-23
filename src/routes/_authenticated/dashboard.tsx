@@ -5,7 +5,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Sparkles, Loader2, ArrowRight, Trash2, FileText, Clock } from "lucide-react";
 import {
-  createAndGenerateBlueprint,
+  createBlueprint,
   listBlueprints,
   deleteBlueprint,
 } from "@/lib/blueprints.functions";
