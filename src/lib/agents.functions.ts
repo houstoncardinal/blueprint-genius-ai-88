@@ -147,14 +147,19 @@ export const runAgent = createServerFn({ method: "POST" })
 
     const openai = getOpenAI();
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
-      temperature: 0.55,
-      max_tokens: 1800,
+      model: "gpt-4o",
+      temperature: 0.4,
+      max_tokens: 2800,
       messages: [
-        { role: "system", content: spec.systemPrompt },
+        {
+          role: "system",
+          content:
+            spec.systemPrompt +
+            "\n\nACCURACY MANDATE: Tailor every section specifically to the provided project context. Use the real domain, target users, and tech stack from the JSON. Cite real competitor names, real pricing benchmarks, and concrete numbers with brief rationale. Never output generic SaaS boilerplate or placeholder text like 'Company X' or 'Feature A'. If you lack information, state your assumption explicitly in one short line and proceed.",
+        },
         {
           role: "user",
-          content: `Project context (JSON):\n${context_blob}\n\nProduce the deliverable now as markdown only. No preamble.`,
+          content: `Project context (JSON):\n${context_blob}\n\nProduce the deliverable now as markdown only. No preamble. Be specific to THIS project.`,
         },
       ],
     });
