@@ -2,7 +2,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-const CreateInput = z.object({ idea: z.string().trim().min(8).max(500) });
+const CreateInput = z.object({
+  idea: z.string().trim().min(8).max(2000),
+  refinedBrief: z.unknown().optional(),
+});
 
 /** Insert a pending row and return its id. Fast — no AI call. */
 export const createBlueprint = createServerFn({ method: "POST" })
