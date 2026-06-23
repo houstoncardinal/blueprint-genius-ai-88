@@ -308,7 +308,7 @@ export function DatabaseTab({ id, bp }: TabProps) {
         {draft.tables?.map((t, ti) => (
           <div key={t.name} className="glass p-4">
             <input
-              className="bg-transparent font-mono text-sm font-semibold text-emerald-300 outline-none"
+              className="bg-transparent font-mono text-sm font-semibold text-emerald-700 outline-none"
               value={t.name}
               onChange={(e) => {
                 const next = [...draft.tables];
