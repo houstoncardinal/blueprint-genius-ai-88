@@ -93,13 +93,35 @@ export const runBlueprintGeneration = createServerFn({ method: "POST" })
         })
         .eq("id", data.id);
       if (upErr) throw new Error(upErr.message);
+
+      // Snapshot v1 for the audit trail (auto-approved as the initial generation)
+      await context.supabase.from("blueprint_versions").insert({
+        blueprint_id: data.id, user_id: context.userId, version: 1,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        snapshot: bp as any, change_summary: "Initial AI generation",
+        approved: true, approved_at: new Date().toISOString(), approved_by: context.userId,
+      });
+      await context.supabase.from("audit_log").insert({
+        user_id: context.userId, blueprint_id: data.id, actor: "agent",
+        action: "blueprint.generated", details: { title: bp.title },
+      });
       return { id: data.id, status: "ready" as const };
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Generation failed";
+      // Friendly mapping of common OpenAI failures
+      const raw = e instanceof Error ? e.message : "Generation failed";
+      let msg = raw;
+      if (/429|rate.?limit/i.test(raw)) msg = "OpenAI is rate-limiting us — please retry in a moment.";
+      else if (/invalid json|json/i.test(raw)) msg = "The AI returned a malformed response. Tap Retry to try again.";
+      else if (/timeout|ETIMEDOUT|ECONNRESET/i.test(raw)) msg = "Network timeout reaching OpenAI. Tap Retry.";
+      else if (/missing openai/i.test(raw)) msg = "Server is missing OPENAI_API_KEY. Contact support.";
       await context.supabase
         .from("blueprints")
         .update({ status: "failed", error: msg })
         .eq("id", data.id);
+      await context.supabase.from("audit_log").insert({
+        user_id: context.userId, blueprint_id: data.id, actor: "system",
+        action: "blueprint.generation_failed", details: { error: msg },
+      });
       throw new Error(msg);
     }
   });
