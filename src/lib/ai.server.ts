@@ -33,7 +33,14 @@ Return ONE JSON object (no commentary). Match this exact shape:
     "nonGoals": string[],                              // 3-5; things explicitly NOT to build
     "constraints": [ { "kind": "budget"|"team"|"timeline"|"regulatory"|"technical"|"market", "detail": string } ],
     "assumptions": string[],                           // 3-5
-    "openQuestions": string[]                          // 3-5; questions a co-founder would ask
+    "openQuestions": string[],                         // 3-5; questions a co-founder would ask
+    "confidence": {
+      "overall": number,                               // 0-100: how confident you are the intent above truly matches what the founder wants
+      "rationale": string,                             // one sentence
+      "lowConfidenceFlags": [                          // 0-5; flag any field a thoughtful founder might disagree with
+        { "field": string, "reason": string, "suggestion": string }
+      ]
+    }
   },
 
   "actionPlan": {
@@ -121,6 +128,11 @@ export type Blueprint = {
     constraints: { kind: string; detail: string }[];
     assumptions: string[];
     openQuestions: string[];
+    confidence?: {
+      overall: number;
+      rationale: string;
+      lowConfidenceFlags: { field: string; reason: string; suggestion: string }[];
+    };
   };
   actionPlan?: { totalWeeks: number; tracks: ActionTrack[]; criticalPath: string[] };
   analysis: Record<string, string | string[]>;
