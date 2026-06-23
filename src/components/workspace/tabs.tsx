@@ -178,7 +178,13 @@ function ChainStep({ step }: { step: Blueprint["promptChain"][number] }) {
   const [copied, setCopied] = useState(false);
   return (
     <div className="glass overflow-hidden">
-      <button onClick={() => setOpen(!open)} className="flex w-full items-center gap-3 p-4 text-left">
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => setOpen(!open)}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(!open); } }}
+        className="flex w-full cursor-pointer items-center gap-3 p-4 text-left"
+      >
         <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface font-mono text-sm">{step.step}</div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
@@ -202,7 +208,7 @@ function ChainStep({ step }: { step: Blueprint["promptChain"][number] }) {
           {copied ? <Check className="h-3 w-3 text-primary" /> : <Copy className="h-3 w-3" />}
         </button>
         <ChevronRight className={`h-4 w-4 text-muted-foreground transition ${open ? "rotate-90" : ""}`} />
-      </button>
+      </div>
       {open && (
         <div className="border-t border-border/60 bg-background/60 px-4 py-4">
           <pre className="max-h-[360px] overflow-auto whitespace-pre-wrap font-mono text-[13px] leading-relaxed text-foreground/90">
