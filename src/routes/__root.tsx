@@ -13,7 +13,6 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 function NotFoundComponent() {
   return (
@@ -72,10 +71,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "BuildBlueprint AI — Turn any idea into a complete dev blueprint" },
       { name: "description", content: "Generate phase-by-phase development blueprints with copy-ready AI prompts for Lovable, Cursor, Bolt, and more." },
       { name: "author", content: "BuildBlueprint AI" },
-      { property: "og:title", content: "BuildBlueprint AI" },
-      { property: "og:description", content: "From idea to launch — a complete AI development blueprint in seconds." },
+      { property: "og:title", content: "BuildBlueprint AI — Turn any idea into a complete dev blueprint" },
+      { property: "og:description", content: "Generate phase-by-phase development blueprints with copy-ready AI prompts for Lovable, Cursor, Bolt, and more." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "BuildBlueprint AI — Turn any idea into a complete dev blueprint" },
+      { name: "twitter:description", content: "Generate phase-by-phase development blueprints with copy-ready AI prompts for Lovable, Cursor, Bolt, and more." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/88d62800-0597-463a-987f-255b07175937/id-preview-bb490bd0--9574768f-95c8-442a-82f4-3a8ec0d01c04.lovable.app-1782198161258.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/88d62800-0597-463a-987f-255b07175937/id-preview-bb490bd0--9574768f-95c8-442a-82f4-3a8ec0d01c04.lovable.app-1782198161258.png" },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),
@@ -120,10 +123,8 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider delayDuration={150} skipDelayDuration={300}>
-        <Outlet />
-        <Toaster theme="light" position="top-right" />
-      </TooltipProvider>
+      <Outlet />
+      <Toaster theme="light" position="top-right" />
     </QueryClientProvider>
   );
 }
