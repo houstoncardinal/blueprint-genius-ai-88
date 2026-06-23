@@ -117,6 +117,7 @@ function BlueprintPage() {
 
 
   const bp = data.analysis as unknown as Blueprint;
+  const activeTab = TABS.find((t) => t.key === tab) ?? TABS[0];
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-10">
@@ -124,23 +125,34 @@ function BlueprintPage() {
         <ArrowLeft className="h-4 w-4" /> Back to dashboard
       </Link>
 
+      <OnboardingBanner />
+
       <div className="mt-6 sticky top-2 z-20">
         <div className="glass-strong flex flex-wrap gap-1 p-1">
-          {TABS.map(({ key, label, Icon }) => (
-            <button
-              key={key}
-              onClick={() => setTab(key)}
-              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition ${
-                tab === key ? "bg-primary/20 text-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <Icon className="h-4 w-4" /> {label}
-            </button>
+          {TABS.map(({ key, label, Icon, hint }) => (
+            <HelpTip key={key} label={hint} side="bottom">
+              <button
+                onClick={() => setTab(key)}
+                aria-label={`${label} — ${hint}`}
+                className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition ${
+                  tab === key ? "bg-primary/20 text-foreground" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Icon className="h-4 w-4" /> {label}
+              </button>
+            </HelpTip>
           ))}
         </div>
       </div>
 
-      <div className="mt-8">
+      <div className="mt-4 flex items-start gap-2 rounded-xl border border-border bg-secondary/50 px-4 py-3 text-xs text-muted-foreground">
+        <Lightbulb className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+        <p>
+          <span className="font-medium text-foreground">{activeTab.label}:</span> {activeTab.description}
+        </p>
+      </div>
+
+      <div className="mt-6">
         {tab === "overview"     && <OverviewTab     bp={bp} idea={data.idea} />}
         {tab === "architecture" && <ArchitectureTab id={id} bp={bp} />}
         {tab === "database"     && <DatabaseTab     id={id} bp={bp} />}
@@ -153,5 +165,37 @@ function BlueprintPage() {
         {tab === "docs"         && <DocumentationTab id={id} bp={bp} />}
       </div>
     </main>
+  );
+}
+
+function OnboardingBanner() {
+  const KEY = "bb_onboarding_dismissed_v1";
+  const [hidden, setHidden] = useState(() => {
+    if (typeof window === "undefined") return true;
+    return window.localStorage.getItem(KEY) === "1";
+  });
+  if (hidden) return null;
+  return (
+    <div className="mt-6 flex items-start gap-3 rounded-2xl border border-primary/20 bg-primary/5 p-4">
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary">
+        <Lightbulb className="h-4 w-4" />
+      </div>
+      <div className="flex-1 text-sm">
+        <div className="font-medium text-foreground">New here? Here's how to use this blueprint.</div>
+        <ol className="mt-2 space-y-1 text-xs text-muted-foreground">
+          <li><span className="font-medium text-foreground">1.</span> Skim the <b>Overview</b> tab to confirm the stack and roadmap match your vision.</li>
+          <li><span className="font-medium text-foreground">2.</span> Open <b>AI Agents</b> and click <b>Run remaining</b> — 16 specialists will write your strategy, copy, pricing, security audit, and paste-ready prompts.</li>
+          <li><span className="font-medium text-foreground">3.</span> In each phase, copy the prompt into Lovable / Cursor / Bolt and ship.</li>
+          <li><span className="font-medium text-foreground">4.</span> Hover any tab or button — every control has a tooltip explaining what it does.</li>
+        </ol>
+      </div>
+      <button
+        onClick={() => { window.localStorage.setItem(KEY, "1"); setHidden(true); }}
+        aria-label="Dismiss"
+        className="rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"
+      >
+        <X className="h-4 w-4" />
+      </button>
+    </div>
   );
 }
