@@ -3,12 +3,13 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Sparkles, Loader2, ArrowRight, Trash2, FileText, Clock } from "lucide-react";
+import { Sparkles, Loader2, ArrowRight, Trash2, FileText, Clock, Wand2, Zap } from "lucide-react";
 import {
   createBlueprint,
   listBlueprints,
   deleteBlueprint,
 } from "@/lib/blueprints.functions";
+import { IntakeWizard } from "@/components/wizard/intake-wizard";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({ meta: [{ title: "Your blueprints — BuildBlueprint AI" }] }),
@@ -33,6 +34,7 @@ function Dashboard() {
   type BlueprintRow = { id: string; title: string; idea: string; status: string; created_at: string };
 
   const [idea, setIdea] = useState("");
+  const [mode, setMode] = useState<"choose" | "wizard" | "fast">("choose");
 
   const { data: blueprints = [], isLoading } = useQuery({
     queryKey: ["blueprints"],
@@ -40,7 +42,7 @@ function Dashboard() {
   });
 
   const createMut = useMutation({
-    mutationFn: (text: string) => create({ data: { idea: text } }) as Promise<{ id: string }>,
+    mutationFn: (payload: { idea: string }) => create({ data: payload }) as Promise<{ id: string }>,
     onSuccess: (res) => {
       qc.invalidateQueries({ queryKey: ["blueprints"] });
       navigate({ to: "/blueprint/$id", params: { id: res.id } });
@@ -56,65 +58,118 @@ function Dashboard() {
     },
   });
 
-  const submit = (e: React.FormEvent) => {
+  const submitFast = (e: React.FormEvent) => {
     e.preventDefault();
     if (idea.trim().length < 8) return toast.error("Describe your idea in a sentence (8+ chars).");
-    createMut.mutate(idea.trim());
+    createMut.mutate({ idea: idea.trim() });
   };
 
   return (
-    <main className="mx-auto max-w-6xl px-6 py-10">
+    <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-10">
       {/* Generator */}
-      <section className="glass-strong gradient-border p-8">
-        <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
-          <Sparkles className="h-3.5 w-3.5 text-primary" /> AI Product Architect
-        </div>
-        <h1 className="font-display mt-3 text-3xl font-semibold sm:text-4xl">
-          What are you building?
-        </h1>
-        <p className="mt-2 text-muted-foreground">
-          One sentence. The Architect will design a 12-phase plan with 100+ copy-ready prompts.
-        </p>
-
-        <form onSubmit={submit} className="mt-6 flex flex-col gap-3 sm:flex-row">
-          <input
-            type="text" value={idea} onChange={(e) => setIdea(e.target.value)}
-            placeholder="e.g. I want a dating app for hikers"
-            disabled={createMut.isPending}
-            className="flex-1 rounded-lg border border-input bg-background/50 px-4 py-3 text-base outline-none ring-ring focus:ring-2"
-          />
-          <button
-            type="submit" disabled={createMut.isPending}
-            className="btn-primary inline-flex items-center justify-center gap-2 px-6 py-3 text-base font-medium disabled:opacity-60"
-          >
-            {createMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-            {createMut.isPending ? "Architecting…" : "Generate blueprint"}
-          </button>
-        </form>
-
-        <div className="mt-4 flex flex-wrap gap-2">
-          {EXAMPLES.map((e) => (
-            <button
-              key={e} onClick={() => setIdea(e)} disabled={createMut.isPending}
-              className="glass px-3 py-1.5 text-xs text-muted-foreground transition hover:text-foreground"
-            >
-              {e}
-            </button>
-          ))}
-        </div>
-
-        {createMut.isPending && (
-          <div className="mt-6 overflow-hidden rounded-lg border border-border/60 bg-surface/50 p-4">
-            <div className="flex items-center gap-3 text-sm">
-              <Loader2 className="h-4 w-4 animate-spin text-primary" />
-              <span className="text-muted-foreground">Designing architecture, picking a stack, sequencing 12 phases, and writing your prompt chain…</span>
-            </div>
-            <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-muted">
-              <div className="h-full shimmer w-1/2" style={{ background: "var(--gradient-primary)" }} />
-            </div>
+      {mode === "wizard" ? (
+        <IntakeWizard
+          onCancel={() => setMode("choose")}
+          onComplete={({ blueprintPrompt }) => createMut.mutate({ idea: blueprintPrompt })}
+        />
+      ) : mode === "fast" ? (
+        <section className="lux-card p-5 sm:p-8">
+          <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-primary">
+            <Zap className="h-3.5 w-3.5" /> Fast Mode
           </div>
-        )}
-      </section>
+          <h1 className="font-display mt-2 text-2xl font-semibold sm:text-4xl">One sentence. One blueprint.</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Skip the interview — the architect will infer the rest and flag low-confidence guesses.
+          </p>
+          <form onSubmit={submitFast} className="mt-5 flex flex-col gap-3 sm:flex-row">
+            <input
+              type="text" value={idea} onChange={(e) => setIdea(e.target.value)}
+              placeholder="e.g. I want a dating app for hikers"
+              disabled={createMut.isPending}
+              className="flex-1 rounded-lg border border-input bg-background/50 px-4 py-3 text-base outline-none ring-ring focus:ring-2"
+            />
+            <button
+              type="submit" disabled={createMut.isPending}
+              className="btn-primary inline-flex items-center justify-center gap-2 px-6 py-3 text-base font-medium disabled:opacity-60"
+            >
+              {createMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              {createMut.isPending ? "Architecting…" : "Generate blueprint"}
+            </button>
+          </form>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {EXAMPLES.map((e) => (
+              <button
+                key={e} onClick={() => setIdea(e)} disabled={createMut.isPending}
+                className="glass px-3 py-1.5 text-xs text-muted-foreground transition hover:text-foreground"
+              >
+                {e}
+              </button>
+            ))}
+          </div>
+          <div className="mt-5">
+            <button onClick={() => setMode("choose")} className="text-xs text-muted-foreground hover:text-foreground">
+              ← Back to options
+            </button>
+          </div>
+          {createMut.isPending && (
+            <div className="mt-6 overflow-hidden rounded-lg border border-border/60 bg-secondary/40 p-4">
+              <div className="flex items-center gap-3 text-sm">
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                <span className="text-muted-foreground">Designing architecture, picking a stack, sequencing 12 phases…</span>
+              </div>
+              <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-muted">
+                <div className="h-full shimmer w-1/2" style={{ background: "var(--gradient-primary)" }} />
+              </div>
+            </div>
+          )}
+        </section>
+      ) : (
+        <section className="lux-card gradient-border p-5 sm:p-8">
+          <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+            <Sparkles className="h-3.5 w-3.5 text-primary" /> AI Product Architect
+          </div>
+          <h1 className="font-display mt-3 text-2xl font-semibold sm:text-4xl">What are you building?</h1>
+          <p className="mt-2 text-sm text-muted-foreground sm:text-base">
+            Pick how deep you want to go. The wizard asks 2–3 rounds of sharp questions until your intent is unambiguous.
+          </p>
+
+          <div className="mt-6 grid gap-3 sm:grid-cols-2">
+            <button
+              onClick={() => setMode("wizard")}
+              className="group rounded-2xl border-2 border-primary/30 bg-primary/5 p-5 text-left transition hover:border-primary/60 hover:shadow-lg"
+            >
+              <div className="flex items-center gap-2 text-primary">
+                <Wand2 className="h-5 w-5" />
+                <span className="font-display text-lg font-semibold">Guided Intake</span>
+                <span className="ml-auto rounded-full bg-primary/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">Recommended</span>
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                2–3 rounds of clarifying questions. Lock in audience, success metrics, and constraints before generation.
+              </p>
+              <div className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary">
+                Start interview <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+              </div>
+            </button>
+
+            <button
+              onClick={() => setMode("fast")}
+              className="group rounded-2xl border-2 border-border bg-card p-5 text-left transition hover:border-foreground/40 hover:shadow-md"
+            >
+              <div className="flex items-center gap-2">
+                <Zap className="h-5 w-5 text-amber-600" />
+                <span className="font-display text-lg font-semibold">Fast Mode</span>
+              </div>
+              <p className="mt-2 text-sm text-muted-foreground">
+                One sentence in, full blueprint out. Architect flags low-confidence guesses for you to confirm later.
+              </p>
+              <div className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-foreground/70">
+                Skip the interview <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+              </div>
+            </button>
+          </div>
+        </section>
+      )}
+
 
       {/* List */}
       <section className="mt-10">
