@@ -16,6 +16,8 @@ export function IntentCanvas({ bp }: { bp: Blueprint }) {
   if (!intent) return null;
   return (
     <section className="space-y-6">
+      <ConfidencePanel intent={intent} />
+
       {/* Vision hero */}
       <div className="lux-card relative overflow-hidden p-8">
         <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full opacity-30 blur-3xl" style={{ background: "var(--gradient-primary)" }} />
