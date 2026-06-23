@@ -107,10 +107,10 @@ export type Blueprint = {
 export async function generateBlueprint(idea: string): Promise<Blueprint> {
   const openai = getOpenAI();
   const completion = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: "gpt-4o",
     response_format: { type: "json_object" },
-    temperature: 0.6,
-    max_tokens: 8000,
+    temperature: 0.4,
+    max_tokens: 12000,
     messages: [
       { role: "system", content: ARCHITECT_SYSTEM_PROMPT },
       { role: "user", content: `Idea: ${idea}\n\nReturn the JSON blueprint now.` },
