@@ -27,7 +27,8 @@ export const createAndGenerateBlueprint = createServerFn({ method: "POST" })
         .from("blueprints")
         .update({
           title: bp.title || "Untitled Blueprint",
-          analysis: bp as unknown as Record<string, unknown>,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          analysis: bp as any,
           status: "ready",
           error: null,
         })
