@@ -119,6 +119,8 @@ html, body { color-scheme: light; }
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    overflow-x: clip;
+    max-width: 100vw;
   }
 
   body {
