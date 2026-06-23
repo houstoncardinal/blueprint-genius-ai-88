@@ -1,5 +1,5 @@
 import type { Blueprint, ActionTrack } from "@/lib/ai.server";
-import { Target, Users, Compass, ShieldAlert, HelpCircle, CheckCircle2, XCircle, Sparkle } from "lucide-react";
+import { Target, Users, Compass, ShieldAlert, HelpCircle, CheckCircle2, XCircle, Sparkle, Gauge, AlertTriangle } from "lucide-react";
 
 const TRACK_COLORS: Record<ActionTrack["color"], { bar: string; chip: string; ring: string }> = {
   indigo:  { bar: "bg-indigo-500/85",  chip: "bg-indigo-50 text-indigo-700 border-indigo-200",   ring: "ring-indigo-200" },
