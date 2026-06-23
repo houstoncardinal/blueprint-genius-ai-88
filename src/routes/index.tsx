@@ -121,7 +121,7 @@ function Landing() {
           </div>
 
           {/* Headline */}
-          <h1 className="font-display text-[2.75rem] leading-[1.05] font-medium tracking-[-0.025em] text-zinc-950 sm:text-6xl md:text-7xl">
+          <h1 className="font-display text-[2.25rem] leading-[1.05] font-medium tracking-[-0.025em] text-zinc-950 sm:text-6xl md:text-7xl">
             Describe it. <span className="text-zinc-400">Architect it.</span> Ship it.
           </h1>
 
