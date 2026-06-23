@@ -74,7 +74,7 @@ export function IntakeWizard({ onCancel, onComplete }: Props) {
         <Wand2 className="h-3.5 w-3.5" /> Guided Intake · Round {phase === "idea" ? 0 : round + (phase === "review" ? 0 : 1)} of 3
       </div>
       <h2 className="font-display mt-2 text-2xl font-semibold sm:text-3xl">
-        {phase === "idea" && "What are you really building?"}
+        {phase === "idea" && "What are you bringing to life?"}
         {phase === "questions" && "A few quick questions"}
         {phase === "review" && "Here's what I understand"}
       </h2>
