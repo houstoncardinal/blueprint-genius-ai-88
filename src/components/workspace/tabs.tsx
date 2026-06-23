@@ -586,7 +586,7 @@ export function DocumentationTab({ id, bp }: TabProps) {
           className="w-full resize-y rounded-lg border border-border/60 bg-background/60 p-4 font-mono text-sm outline-none focus:border-primary"
         />
       ) : (
-        <div className="prose prose-invert max-w-none rounded-lg border border-border/60 bg-background/60 p-6">
+        <div className="prose prose-sm max-w-none rounded-lg border border-border bg-card p-6 prose-headings:font-display prose-headings:tracking-tight prose-pre:bg-secondary prose-code:text-primary prose-a:text-primary">
           <ReactMarkdown>{draft || "_No documentation yet._"}</ReactMarkdown>
         </div>
       )}
