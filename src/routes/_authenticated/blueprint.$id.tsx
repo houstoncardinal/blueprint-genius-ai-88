@@ -147,6 +147,7 @@ function BlueprintPage() {
         {tab === "api"          && <ApiTab          id={id} bp={bp} />}
         {tab === "deployment"   && <DeploymentTab   id={id} bp={bp} />}
         {tab === "tasks"        && <TasksTab        id={id} bp={bp} />}
+        {tab === "agents"       && <AgentsTab       id={id} bp={bp} />}
         {tab === "docs"         && <DocumentationTab id={id} bp={bp} />}
       </div>
     </main>
