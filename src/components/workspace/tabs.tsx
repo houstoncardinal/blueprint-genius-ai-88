@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import type { Blueprint } from "@/lib/ai.server";
 import { ArchitectureFlow, DatabaseFlow } from "./flows";
+import { IntentCanvas, RoadmapTimeline } from "./intent-canvas";
 import { useBlueprintSave, useDraft } from "@/lib/use-blueprint-save";
 
 type TabProps = { id: string; bp: Blueprint };
@@ -20,7 +21,7 @@ export function OverviewTab({ bp, idea }: { bp: Blueprint; idea: string }) {
   ];
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-12">
       <header>
         <div className="glass mb-3 inline-flex items-center gap-2 px-3 py-1 text-xs text-muted-foreground">
           Idea: {idea}
@@ -29,6 +30,10 @@ export function OverviewTab({ bp, idea }: { bp: Blueprint; idea: string }) {
         <p className="mt-3 max-w-3xl text-lg text-muted-foreground">{bp.tagline}</p>
         <p className="mt-2 max-w-3xl text-sm text-muted-foreground">{bp.summary}</p>
       </header>
+
+      <IntentCanvas bp={bp} />
+
+      <RoadmapTimeline bp={bp} />
 
       <section className="grid gap-4 lg:grid-cols-3">
         <div className="glass-strong gradient-border p-6 lg:col-span-2">
