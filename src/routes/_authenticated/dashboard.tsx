@@ -1,4 +1,5 @@
-import { createFileRoute, Link, useNavigate, useServerFn } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -37,11 +38,11 @@ function Dashboard() {
   });
 
   const createMut = useMutation({
-    mutationFn: (text: string) => create({ data: { idea: text } }),
-    onSuccess: ({ id }) => {
+    mutationFn: (text: string) => create({ data: { idea: text } }) as Promise<{ id: string }>,
+    onSuccess: (res) => {
       toast.success("Blueprint ready");
       qc.invalidateQueries({ queryKey: ["blueprints"] });
-      navigate({ to: "/blueprint/$id", params: { id } });
+      navigate({ to: "/blueprint/$id", params: { id: res.id } });
     },
     onError: (e) => toast.error(e instanceof Error ? e.message : "Generation failed"),
   });
