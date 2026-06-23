@@ -100,7 +100,23 @@ function AuthPage() {
             {mode === "signin" ? "Sign in to generate and manage your blueprints." : "Start turning ideas into buildable plans."}
           </p>
 
-          <form onSubmit={submit} className="mt-6 space-y-4">
+          <button
+            type="button"
+            onClick={signInWithGoogle}
+            disabled={googleLoading}
+            className="mt-6 inline-flex w-full items-center justify-center gap-2.5 rounded-md border border-input bg-background px-4 py-2.5 text-sm font-medium hover:bg-muted/40 transition-colors disabled:opacity-60"
+          >
+            {googleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleMark />}
+            {googleLoading ? "Opening Google…" : `Continue with Google`}
+          </button>
+
+          <div className="my-5 flex items-center gap-3 text-[11px] uppercase tracking-wider text-muted-foreground">
+            <div className="h-px flex-1 bg-border" />
+            or use email
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
+          <form onSubmit={submit} className="space-y-4">
             <div>
               <label className="text-xs font-medium text-muted-foreground">Email</label>
               <input
