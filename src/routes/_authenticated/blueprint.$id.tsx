@@ -12,7 +12,8 @@ import {
 } from "@/components/workspace/tabs";
 import { AgentsTab } from "@/components/workspace/agents-tab";
 import { HelpTip } from "@/components/ui/help-tip";
-import { X, Lightbulb } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 export const Route = createFileRoute("/_authenticated/blueprint/$id")({
   head: () => ({ meta: [{ title: "Blueprint — BuildBlueprint AI" }] }),
