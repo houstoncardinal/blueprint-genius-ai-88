@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, LayoutGrid, Network, Database, Layout, Server, Code2, Cloud, KanbanSquare, BookOpen, RefreshCw, Bot } from "lucide-react";
+import { ArrowLeft, Loader2, LayoutGrid, Network, Database, Layout, Server, Code2, Cloud, KanbanSquare, BookOpen, RefreshCw, Bot, Lightbulb, X } from "lucide-react";
 import { getBlueprint, runBlueprintGeneration } from "@/lib/blueprints.functions";
 import type { Blueprint } from "@/lib/ai.server";
 import {
