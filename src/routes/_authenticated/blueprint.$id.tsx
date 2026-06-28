@@ -135,7 +135,29 @@ function BlueprintPage() {
       <OnboardingBanner />
 
       <div className="mt-6 sticky top-2 z-20">
-        <div className="glass-strong -mx-1 flex gap-1 overflow-x-auto p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {/* Mobile: dropdown selector */}
+        <div className="md:hidden">
+          <Select value={tab} onValueChange={(v) => setTab(v as TabKey)}>
+            <SelectTrigger className="glass-strong h-12 w-full text-sm font-medium">
+              <div className="flex items-center gap-2">
+                <activeTab.Icon className="h-4 w-4 text-primary" />
+                <SelectValue />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              {TABS.map(({ key, label, Icon }) => (
+                <SelectItem key={key} value={key}>
+                  <div className="flex items-center gap-2">
+                    <Icon className="h-4 w-4 text-muted-foreground" />
+                    <span>{label}</span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        {/* Desktop: pill bar */}
+        <div className="glass-strong -mx-1 hidden gap-1 overflow-x-auto p-1 md:flex [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {TABS.map(({ key, label, Icon, hint }) => (
             <HelpTip key={key} label={hint} side="bottom">
               <button
@@ -151,6 +173,7 @@ function BlueprintPage() {
           ))}
         </div>
       </div>
+
 
 
       <div className="mt-4 flex items-start gap-2 rounded-xl border border-border bg-secondary/50 px-4 py-3 text-xs text-muted-foreground">
