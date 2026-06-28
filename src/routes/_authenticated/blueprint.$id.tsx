@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, LayoutGrid, Network, Database, Layout, Server, Code2, Cloud, KanbanSquare, BookOpen, RefreshCw, Bot } from "lucide-react";
+import { ArrowLeft, Loader2, LayoutGrid, Network, Database, Layout, Server, Code2, Cloud, KanbanSquare, BookOpen, RefreshCw, Bot, Lightbulb, X } from "lucide-react";
 import { getBlueprint, runBlueprintGeneration } from "@/lib/blueprints.functions";
 import type { Blueprint } from "@/lib/ai.server";
 import {
@@ -12,7 +12,8 @@ import {
 } from "@/components/workspace/tabs";
 import { AgentsTab } from "@/components/workspace/agents-tab";
 import { HelpTip } from "@/components/ui/help-tip";
-import { X, Lightbulb } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 export const Route = createFileRoute("/_authenticated/blueprint/$id")({
   head: () => ({ meta: [{ title: "Blueprint — BuildBlueprint AI" }] }),
@@ -51,7 +52,12 @@ function BlueprintPage() {
   const genMut = useMutation({
     mutationFn: () => runGen({ data: { id } }) as Promise<{ status: string }>,
     onSuccess: () => refetch(),
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Generation failed"),
+    onError: (e) => {
+      const msg = e instanceof Error ? e.message : "Generation failed";
+      // Silently ignore mobile/network aborts — polling will surface the real status.
+      if (/load failed|network|fetch|aborted|timeout/i.test(msg)) return;
+      toast.error(msg);
+    },
   });
 
   // Auto-trigger generation once when row is in 'generating' state and no analysis yet.
@@ -64,6 +70,7 @@ function BlueprintPage() {
       genMut.mutate();
     }
   }, [data, genMut]);
+
 
   if (isLoading) {
     return (
@@ -128,7 +135,29 @@ function BlueprintPage() {
       <OnboardingBanner />
 
       <div className="mt-6 sticky top-2 z-20">
-        <div className="glass-strong -mx-1 flex gap-1 overflow-x-auto p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {/* Mobile: dropdown selector */}
+        <div className="md:hidden">
+          <Select value={tab} onValueChange={(v) => setTab(v as TabKey)}>
+            <SelectTrigger className="glass-strong h-12 w-full text-sm font-medium">
+              <div className="flex items-center gap-2">
+                <activeTab.Icon className="h-4 w-4 text-primary" />
+                <SelectValue />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              {TABS.map(({ key, label, Icon }) => (
+                <SelectItem key={key} value={key}>
+                  <div className="flex items-center gap-2">
+                    <Icon className="h-4 w-4 text-muted-foreground" />
+                    <span>{label}</span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        {/* Desktop: pill bar */}
+        <div className="glass-strong -mx-1 hidden gap-1 overflow-x-auto p-1 md:flex [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {TABS.map(({ key, label, Icon, hint }) => (
             <HelpTip key={key} label={hint} side="bottom">
               <button
@@ -144,6 +173,7 @@ function BlueprintPage() {
           ))}
         </div>
       </div>
+
 
 
       <div className="mt-4 flex items-start gap-2 rounded-xl border border-border bg-secondary/50 px-4 py-3 text-xs text-muted-foreground">
