@@ -110,10 +110,19 @@ function Landing() {
       </header>
 
       {/* Hero */}
-      <section className="relative mx-auto max-w-6xl px-6 pt-16 pb-24 sm:pt-24">
+      <section className="relative mx-auto max-w-6xl px-6 pt-12 pb-20 sm:pt-24 sm:pb-28">
+        {/* Soft ambient halo */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[520px] w-[920px] -translate-x-1/2 rounded-full opacity-60 blur-3xl"
+          style={{
+            background:
+              "radial-gradient(closest-side, rgba(244,232,210,0.85), rgba(255,255,255,0) 70%)",
+          }}
+        />
         <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
           {/* Badge */}
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-zinc-50/80 px-3 py-1 text-[11px] font-medium tracking-wide text-zinc-600">
+          <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-zinc-200/80 bg-white/80 px-3 py-1 text-[11px] font-medium tracking-wide text-zinc-600 shadow-sm backdrop-blur">
             <span className="relative flex h-1.5 w-1.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
@@ -122,29 +131,32 @@ function Landing() {
           </div>
 
           {/* Headline */}
-          <h1 className="font-display text-[2.25rem] leading-[1.05] font-medium tracking-[-0.025em] text-zinc-950 sm:text-6xl md:text-7xl">
+          <h1 className="font-display text-[2rem] leading-[1.05] font-medium tracking-[-0.025em] text-zinc-950 sm:text-6xl md:text-7xl">
             Describe it. <span className="text-zinc-400">Architect it.</span> Ship it.
           </h1>
 
+          {/* Hairline accent */}
+          <div className="mt-6 h-px w-24 bg-gradient-to-r from-transparent via-zinc-300 to-transparent" />
+
           {/* Subhead */}
-          <p className="mx-auto mt-6 max-w-2xl text-[17px] leading-relaxed text-zinc-500 sm:text-lg">
+          <p className="mx-auto mt-6 max-w-2xl text-[16px] leading-relaxed text-zinc-500 sm:text-lg">
             BuildBlueprint AI turns a single sentence into a 12-phase roadmap, 100+ copy-ready prompts,
             a database schema, and a sequential build chain — engineered for teams that ship.
           </p>
 
           {/* CTAs */}
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-10 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
             <button
               onClick={signInWithGoogle}
               disabled={googleLoading}
-              className="inline-flex h-11 items-center justify-center gap-2.5 rounded-md border border-zinc-200 bg-white px-5 text-[14px] font-medium text-zinc-800 shadow-[0_1px_2px_rgba(16,24,40,0.06)] hover:bg-zinc-50 transition-colors disabled:opacity-60"
+              className="inline-flex h-11 w-full items-center justify-center gap-2.5 rounded-md border border-zinc-200 bg-white px-5 text-[14px] font-medium text-zinc-800 shadow-[0_1px_2px_rgba(16,24,40,0.06)] transition hover:bg-zinc-50 hover:shadow-md disabled:opacity-60 sm:w-auto"
             >
               <GoogleMark />
               {googleLoading ? "Opening Google…" : "Continue with Google"}
             </button>
             <Link
               to="/auth"
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-zinc-900 px-6 text-[14px] font-medium text-white hover:bg-zinc-800 transition-colors"
+              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-md bg-zinc-900 px-6 text-[14px] font-medium text-white shadow-[0_8px_24px_-12px_rgba(15,23,42,0.45)] transition hover:bg-zinc-800 sm:w-auto"
             >
               Start building free <ArrowRight className="h-4 w-4" />
             </Link>
@@ -159,6 +171,7 @@ function Landing() {
             ))}
           </div>
         </div>
+
 
         {/* Blueprint console */}
         <div className="relative mx-auto mt-20 max-w-5xl">
