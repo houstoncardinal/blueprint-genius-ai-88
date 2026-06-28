@@ -3,6 +3,8 @@ import { ArrowRight, Sparkles, Workflow, Database, Cpu, Rocket, Layers, Code2, G
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 import { useState } from "react";
+import logoUrl from "@/assets/logo.png";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
