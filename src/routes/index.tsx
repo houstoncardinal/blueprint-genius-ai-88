@@ -78,14 +78,13 @@ function Landing() {
 
       {/* Nav */}
       <header className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="grid h-8 w-8 place-items-center rounded-md bg-zinc-900">
-            <Sparkles className="h-4 w-4 text-white" />
-          </div>
+        <Link to="/" className="flex items-center gap-2.5">
+          <img src={logoUrl} alt="BuildBlueprint AI" width={32} height={32} className="h-8 w-8" />
           <span className="text-[15px] font-semibold tracking-tight text-zinc-900">
             BuildBlueprint <span className="text-zinc-400">AI</span>
           </span>
         </Link>
+
         <nav className="hidden items-center gap-8 text-[13px] text-zinc-500 md:flex">
           <a href="#how" className="hover:text-zinc-900 transition-colors">How it works</a>
           <a href="#phases" className="hover:text-zinc-900 transition-colors">Phases</a>
