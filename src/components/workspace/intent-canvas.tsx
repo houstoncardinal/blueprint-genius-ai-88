@@ -154,7 +154,9 @@ export function RoadmapTimeline({ bp }: { bp: Blueprint }) {
         </div>
       </div>
 
-      <div className="lux-card mt-5 overflow-x-auto p-5">
+      <div className="text-[11px] text-muted-foreground sm:hidden mt-3">← swipe to see all {totalWeeks} weeks →</div>
+      <div className="lux-card mt-3 overflow-x-auto p-3 sm:mt-5 sm:p-5">
+
         <div className="min-w-[760px]">
           {/* Week header */}
           <div className="grid items-center gap-2" style={{ gridTemplateColumns: `160px repeat(${totalWeeks}, minmax(36px, 1fr))` }}>
