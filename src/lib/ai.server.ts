@@ -196,10 +196,10 @@ function extractJson(text: string): string {
 export async function generateBlueprint(idea: string): Promise<Blueprint> {
   const openai = getOpenAI();
   const completion = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-4.1",
     response_format: { type: "json_object" },
     temperature: 0.4,
-    max_tokens: 16000,
+    max_tokens: 32000,
     messages: [
       { role: "system", content: ARCHITECT_SYSTEM_PROMPT },
       { role: "user", content: `Idea: ${idea}\n\nReturn the JSON blueprint now.` },
