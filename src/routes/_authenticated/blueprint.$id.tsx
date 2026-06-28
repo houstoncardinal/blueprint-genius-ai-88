@@ -52,7 +52,12 @@ function BlueprintPage() {
   const genMut = useMutation({
     mutationFn: () => runGen({ data: { id } }) as Promise<{ status: string }>,
     onSuccess: () => refetch(),
-    onError: (e) => toast.error(e instanceof Error ? e.message : "Generation failed"),
+    onError: (e) => {
+      const msg = e instanceof Error ? e.message : "Generation failed";
+      // Silently ignore mobile/network aborts — polling will surface the real status.
+      if (/load failed|network|fetch|aborted|timeout/i.test(msg)) return;
+      toast.error(msg);
+    },
   });
 
   // Auto-trigger generation once when row is in 'generating' state and no analysis yet.
@@ -65,6 +70,7 @@ function BlueprintPage() {
       genMut.mutate();
     }
   }, [data, genMut]);
+
 
   if (isLoading) {
     return (
