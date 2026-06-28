@@ -105,11 +105,29 @@ Counts (strict):
 - intent.primaryAudiences: 2-4. intent.jobsToBeDone: 3-6. intent.successMetrics: 3-5. intent.nonGoals: 3-5. intent.constraints: 3-6. intent.assumptions: 3-5. intent.openQuestions: 3-5.
 - actionPlan.tracks: 4-6 (only relevant tracks). Each track has 3-7 items. Items must have startWeek <= endWeek <= totalWeeks. Item ids unique across tracks; use short kebab-case like "fe-auth".
 - EXACTLY 12 phases in this order: 1 Discovery, 2 UI/UX, 3 Database, 4 Authentication, 5 Core Features, 6 AI Features, 7 Payments, 8 Admin, 9 Testing, 10 Deployment, 11 Scaling, 12 Optimization.
-- Each phase prompt body is 40–80 words, second person, copy-ready, concrete (file/table/component names, libraries, acceptance criteria).
 - promptChain has 12 steps. architecture.nodes 6–8, edges 6–10. database.tables 5–7. api.endpoints 8–12. frontend.pages 6–8. backend.services 4–6, jobs 3–5. userStories 5–7. milestones 4–5. tasks 12.
 - folderStructure: ASCII tree using \\n. documentation: markdown README skeleton <= 250 words.
 
-Be opinionated and concrete. No fluff. No "consider"/"you might".
+PROMPT QUALITY MANDATE (this is the most important section — the prompts ARE the product):
+
+Each phase's "prompts.primary.body" and "prompts.advanced.body" must be **350–600 words**, written as a fully-articulated, copy-paste-ready instruction the founder will paste directly into a builder like Lovable, Cursor, v0, or Bolt. These are not summaries — they ARE the actual build prompts a senior engineer would write. promptChain[i].prompt follows the same standard (350–600 words each).
+
+Every prompt MUST include, in this order:
+1. **Context block** (2–4 sentences): what was built in prior phases, what state the codebase is in, what this phase advances toward the north-star metric. Reference the product by name.
+2. **Objective** (1–2 sentences): the precise outcome of THIS phase, in business AND technical terms.
+3. **Scope — In** (bulleted): specific files to create/modify with paths (e.g. \`src/routes/dashboard.tsx\`, \`supabase/migrations/0003_orders.sql\`), exact component names, exact table/column names, exact API routes, exact env vars, exact library versions.
+4. **Scope — Out**: what NOT to touch this phase (prevents scope creep).
+5. **Technical specification**: concrete schemas (SQL DDL snippets where relevant), RLS policy intent, API request/response shapes, state management, error handling, loading/empty/error states, accessibility (WCAG AA), responsive breakpoints, validation (zod) with example schema, auth/permission checks per route.
+6. **Design direction** (UI phases): typography scale, color tokens, spacing system, shadcn/ui components, motion (framer-motion timings), reference inspirations (real product names like Linear, Stripe, Vercel, Notion — only when stylistically appropriate to THIS product).
+7. **Acceptance criteria** (5–8 checkboxes): observable, testable ("user can X without Y", "p95 latency < 300ms", "all forms validate with inline errors", "passes \`bun run build\` with zero TS errors").
+8. **Edge cases & failure modes**: at least 3 specific ones tied to this domain.
+9. **Definition of Done**: deployment status, tests written, docs updated, telemetry events emitted.
+
+"primary" is the pragmatic shipping prompt (MVP-quality, fastest path to working). "advanced" is the same phase done to senior/enterprise standard — adds observability (PostHog/Sentry events with exact event names), feature flags, performance budgets, integration tests, edge cases the primary skips, stricter acceptance criteria. Advanced is NOT a rewrite — it's primary plus elevation.
+
+Voice: second person, imperative, surgical. No hedging ("consider", "you might", "perhaps", "try to"). No marketing fluff. Every sentence either constrains the build or unblocks the builder. Reference real libraries with versions (e.g. "TanStack Query v5", "Stripe Node SDK ^17", "Resend ^4"). Reference real files with real paths. When the stack is TanStack Start + Supabase, use \`createServerFn\`, \`createFileRoute\`, RLS policies, and \`src/lib/*.functions.ts\` conventions explicitly.
+
+Be opinionated and concrete.
 
 ACCURACY MANDATE: Every field tailored to THIS idea — real domain entities, real competitor names, real library versions, realistic numbers with sources/rationale. If a section does not apply (e.g. payments for internal tool), say so explicitly and explain why. Intent fields must reflect what a thoughtful founder of THIS specific product would actually say — never generic SaaS boilerplate.`;
 
@@ -178,10 +196,10 @@ function extractJson(text: string): string {
 export async function generateBlueprint(idea: string): Promise<Blueprint> {
   const openai = getOpenAI();
   const completion = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-4.1",
     response_format: { type: "json_object" },
     temperature: 0.4,
-    max_tokens: 16000,
+    max_tokens: 32000,
     messages: [
       { role: "system", content: ARCHITECT_SYSTEM_PROMPT },
       { role: "user", content: `Idea: ${idea}\n\nReturn the JSON blueprint now.` },
